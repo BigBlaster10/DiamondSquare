@@ -16,7 +16,7 @@ public class DiamondSquare {
 		
 		Location lerped = Location.lerp(loc1, loc2, 0.5);
 		//System.out.println("Lerp: " + lerped);
-		DiamondSquare square = new DiamondSquare(3, (int) (Math.random()*1000));
+		DiamondSquare square = new DiamondSquare(5, (int) (Math.random()*1000));
 		square.generate();
 		
 		//System.out.println(square.exelTest());
@@ -58,10 +58,13 @@ public class DiamondSquare {
 		
 		
 		mapSeed = (int) (rand.nextDouble()*255);
+		setNeg();
+		
 		map[0][0] = (int) (rand.nextDouble()*255);
 		map[0][height-1] = (int) (rand.nextDouble()*255);
 		map[width-1][0] = (int) (rand.nextDouble()*255);
 		map[width-1][height-1] = (int) (rand.nextDouble()*255);
+		
 	}
 	
 	public int[][] getMap(){
@@ -87,10 +90,18 @@ public class DiamondSquare {
 	public boolean isFull(){
 		for(int y = 0; y < height; y++){
 			for(int x = 0; x < width; x++){
-				if(map[x][y] == 0) return false;
+				if(map[x][y] == -1) return false;
 			}
 		}		
 		return true;
+	}
+	
+	public void setNeg(){
+		for(int y = 0; y < height; y++){
+			for(int x = 0; x < width; x++){
+				map[x][y] = -1;
+			}
+		}
 	}
 	
 	//int h = 2;
@@ -106,42 +117,61 @@ public class DiamondSquare {
 	
 	public void generate(){
 		int i = 1;
-		while(!isFull()){
-			step(i, (int) (mapSeed));
-			i++;
+		//while(!isFull()){
+		//	step(i);
+		//	i++;
+		//}
+		
+		for (int sideLength = width - 1; sideLength >= 2; sideLength /= 2){
+			//System.out.println("Step: " + sideLength);
+			step(sideLength);			
 		}
+			
 		
 		//for(int i = 1; i <= 2; i++){
 		//	step(i, i);
 		//}		
 	}
 	
+	double h = 100;
 	public int rand(int avg){
 		//return avg;
-		return (int) (avg + this.seedRandom()*6);	
+		return (int) (avg + (2*this.seedRandom()*h) - h);
+		//return avg;	
+
 	}
 	
 	
-	public void step(int step, int h){		
-		Location minLoc = new Location(0,0);
-		Location maxLoc = new Location(1.0 * ((width-1)/step), 1.0 * ((height-1)/step));
+	private void step(int dist){		
+		//Location minLoc = new Location(0,0);
+		//Location maxLoc = new Location((1.0 * (width-1)/step), (1.0 * (height-1)/step));
 		
-		Location p1 = minLoc;
-		Location p2 = new Location(0, maxLoc.getY());
-		Location p3 = new Location(maxLoc.getX(), 0);
-		Location p4 = maxLoc;		
+		//ocation p1 = minLoc;
+		//Location p2 = new Location(0, maxLoc.getY());
+		//Location p3 = new Location(maxLoc.getX(), 0);
+		//Location p4 = maxLoc;		
 		
-		int dist = (int) (maxLoc.getX() - minLoc.getX());
+		Location p1;
+		Location p2;
+		Location p3;
+		Location p4;	
+		//double dist = (maxLoc.getX() - minLoc.getX());
+		//System.out.println("DIst: " + dist + " Step: " + step);
 		
-		for(int x = 0; x <= width; x += maxLoc.getX()){
-			for(int y = 0; y <= height; y += maxLoc.getY()){
+		int i = 0;
+		
+		for(int x = 0; x < width; x += dist){
+			for(int y = 0; y < height; y += dist){
+				i++;
+				//System.out.println("I: " + i);
+				
 				p1 = new Location(x, y);
 				p2 = new Location(x, y+dist);
 				p3 = new Location(x+dist, y);
 				p4 = new Location(x+dist, y+dist);
 				if(p1.getX() >= width || p2.getX() >= width || p3.getX() >= width || p4.getX() >= width
 						|| p1.getY() >= height || p2.getY() >= height || p3.getY() >= height || p4.getY() >= height){
-				
+					//System.out.println("broke");
 					continue;
 				}			
 								
@@ -150,50 +180,59 @@ public class DiamondSquare {
 				
 				int avg = map[(int) p1.getX()][(int) p1.getY()] + map[(int) p2.getX()][(int) p2.getY()] + map[(int) p3.getX()][(int) p3.getY()] + map[(int) p4.getX()][(int) p4.getY()];
 				avg /= 4;
-				map[(int) mid.getX()][(int) mid.getY()] = rand(avg);			
-				
-				
-				
-				
+				if(map[(int) mid.getX()][(int) mid.getY()] == -1)map[(int) mid.getX()][(int) mid.getY()] = rand(avg);					
+				//if(map[(int) mid.getX()][(int) mid.getY()] == -1)map[(int) mid.getX()][(int) mid.getY()] = 255;					
+
 				p1 = new Location(mid.getX()-dist/2, mid.getY());
 				p2 = new Location(mid.getX()+dist/2, mid.getY());
-				p3 = new Location(mid.getX(), mid.getY()+dist/2);
+				p3 = new Location(mid.getX(), mid.getY() + dist/2);
 				p4 = new Location(mid.getX(), mid.getY()-dist/2);
 				
-				if(map[(int) p1.getX()][(int) p1.getY()] == 0) map[(int) p1.getX()][(int) p1.getY()] = rand(getHeight(p1, dist/2));		
-				if(map[(int) p2.getX()][(int) p2.getY()] == 0) map[(int) p2.getX()][(int) p2.getY()] = rand(getHeight(p2, dist/2));			
-				if(map[(int) p3.getX()][(int) p3.getY()] == 0) map[(int) p3.getX()][(int) p3.getY()] = rand(getHeight(p3, dist/2));			
-				if(map[(int) p4.getX()][(int) p4.getY()] == 0) map[(int) p4.getX()][(int) p4.getY()] = rand(getHeight(p4, dist/2));			
-
+				//System.out.println("DIst: " + dist);
 				
+				if(map[(int) p1.getX()][(int) p1.getY()] == -1) map[(int) p1.getX()][(int) p1.getY()] = rand(getHeight(p1, 1.0 * dist/2));		
+				if(map[(int) p2.getX()][(int) p2.getY()] == -1) map[(int) p2.getX()][(int) p2.getY()] = rand(getHeight(p2, 1.0 * dist/2));			
+				if(map[(int) p3.getX()][(int) p3.getY()] == -1) map[(int) p3.getX()][(int) p3.getY()] = rand(getHeight(p3, 1.0 * dist/2));			
+				if(map[(int) p4.getX()][(int) p4.getY()] == -1) map[(int) p4.getX()][(int) p4.getY()] = rand(getHeight(p4, 1.0 * dist/2));	
+				
+				//if(map[(int) p1.getX()][(int) p1.getY()] == -1) map[(int) p1.getX()][(int) p1.getY()] = 130;		
+				//if(map[(int) p2.getX()][(int) p2.getY()] == -1) map[(int) p2.getX()][(int) p2.getY()] = 130;			
+				//if(map[(int) p3.getX()][(int) p3.getY()] == -1) map[(int) p3.getX()][(int) p3.getY()] = 130;			
+				//if(map[(int) p4.getX()][(int) p4.getY()] == -1) map[(int) p4.getX()][(int) p4.getY()] = 130;	
 			}			
 		}	
+		
+		h /= 2;
+
 	}
 	
 	
-	public int getHeight(Location loc, int dist){
+	public int getHeight(Location loc, double dist){
 		int totHeight = 0;
 		int found = 0;
-		
+		dist = Math.round(dist);
 		Location p1 = loc.add(dist, 0);
 		Location p2 = loc.add(-dist, 0);
 		Location p3 = loc.add(0, dist);
 		Location p4 = loc.add(0, -dist);
 
-		if(isInMap(p1) && map[(int) p1.getX()][(int) p1.getY()] != 0){
+		if(isInMap(p1) && map[(int) p1.getX()][(int) p1.getY()] != -1){
 			totHeight += map[(int) p1.getX()][(int) p1.getY()];
 			found++;
-		}if(isInMap(p2) && map[(int) p2.getX()][(int) p2.getY()] != 0){
+		}if(isInMap(p2) && map[(int) p2.getX()][(int) p2.getY()] != -1){
 			totHeight += map[(int) p2.getX()][(int) p2.getY()];
 			found++;
-		}if(isInMap(p3) && map[(int) p3.getX()][(int) p3.getY()] != 0){
+		}if(isInMap(p3) && map[(int) p3.getX()][(int) p3.getY()] != -1){
 			totHeight += map[(int) p3.getX()][(int) p3.getY()];
 			found++;
-		}if(isInMap(p4) && map[(int) p4.getX()][(int) p4.getY()] != 0){
+		}if(isInMap(p4) && map[(int) p4.getX()][(int) p4.getY()] != -1){
 			totHeight += map[(int) p4.getX()][(int) p4.getY()];
 			found++;
 		}
-		if(found == 0) return 0;
+		if(found == 0){
+			System.out.println("000000000");
+			return 0;
+		}
 		return totHeight / found;		
 	}
 	
