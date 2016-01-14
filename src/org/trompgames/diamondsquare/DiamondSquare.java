@@ -16,7 +16,7 @@ public class DiamondSquare {
 		
 		Location lerped = Location.lerp(loc1, loc2, 0.5);
 		//System.out.println("Lerp: " + lerped);
-		DiamondSquare square = new DiamondSquare(5, (int) (Math.random()*1000));
+		DiamondSquare square = new DiamondSquare(7, (int) (Math.random()*1000));
 		square.generate();
 		
 		//System.out.println(square.exelTest());
@@ -38,7 +38,7 @@ public class DiamondSquare {
 		}
 		
 		
-		new IsoFrame(500, 500, square);
+		new IsoFrame(1500, 600, square);
 		
 		
 	}
@@ -133,10 +133,10 @@ public class DiamondSquare {
 		//}		
 	}
 	
-	double h = 100;
+	double h = 75;
 	public int rand(int avg){
 		//return avg;
-		return (int) (avg + (2*this.seedRandom()*h) - h);
+		return (int) (avg + ((2.0 *this.seedRandom()*h) - h));
 		//return avg;	
 
 	}
