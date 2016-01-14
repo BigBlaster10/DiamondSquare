@@ -17,8 +17,11 @@ public class DiamondSquare {
 		
 		Location lerped = Location.lerp(loc1, loc2, 0.5);
 		//System.out.println("Lerp: " + lerped);
-		DiamondSquare square = new DiamondSquare(7, (int) (Math.random()*1000));
+		DiamondSquare square = new DiamondSquare(3, (int) (Math.random()*1000));
+		
+		System.out.println("Starting generation");
 		square.generate();
+		System.out.println("Finished generating");
 		
 		//System.out.println(square.exelTest());
 			
@@ -27,6 +30,8 @@ public class DiamondSquare {
 			//System.out.println("Rand: " + (int) (1.0 * square.seedRandom()*255));
 		}
 		
+		long time = System.currentTimeMillis();
+		System.out.println("Started Writing");
 		
 		File file = new File("test.txt");
 		
@@ -52,7 +57,7 @@ public class DiamondSquare {
 		}
 		
 		
-		System.out.println("Done");
+		System.out.println("Done " + (System.currentTimeMillis()-time)/1000 + "s");
 		
 		//System.out.println(square.toString());
 		
