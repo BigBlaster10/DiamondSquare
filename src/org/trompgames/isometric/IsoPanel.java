@@ -44,15 +44,24 @@ public class IsoPanel extends JPanel{
     		//i = 0;
         	square = new DiamondSquare(10, (int) (Math.random() * 20000));
     		square.generate();        	
-    		//square.step(step);
-        	//step++;
+    		
+    		//double min = square.getMin();
+    		
+    		double[][] map = square.getMap();
+    		
+    		for(int y = 0; y < map[0].length; y++){
+    			for(int x = 0; x < map.length; x++){
+    				//map[x][y] = map[x][y] + min;
+    			}
+    		}
+    		
         	click = false;
         }
         i++;
         
         
         
-        int[][] map = square.getMap();
+        double[][] map = square.getMap();
         
         int size = 15;
         
@@ -64,14 +73,17 @@ public class IsoPanel extends JPanel{
         		if(c > 255) c = 254;
         		if(c < 0) c = 0; 
         		g2d.setColor(new Color((int) c,(int) c, (int) 0));
-
         		int tile_width = 1;
+
         		int tile_height = 1;
-        		
+
         		int screenX = (x * tile_width  / 2) + (y * tile_width  / 2);
         	    int screenY = (y * tile_height / 2) - (x * tile_height / 2);
-        		
-                g2d.fillRect((int) (200 + screenX), (int) (400 + screenY/c*80), tile_height, tile_height);
+        	    
+        	    if(screenY >= this.getWidth()) continue;
+        	    
+        		//40
+                g2d.fillRect((int) (250 + screenX), (int) (500 + screenY/c * 40), tile_width, tile_height);
 
                 //g2d.fillRect(800 + x*size, y*size, size, size);
                 

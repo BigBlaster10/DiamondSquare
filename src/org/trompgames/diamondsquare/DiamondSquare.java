@@ -1,8 +1,9 @@
 package org.trompgames.diamondsquare;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.Random;
-
-import org.trompgames.isometric.IsoFrame;
 
 public class DiamondSquare {
 
@@ -27,50 +28,84 @@ public class DiamondSquare {
 		}
 		
 		
+		File file = new File("test.txt");
+		
+	    PrintWriter out;
+		try {
+			out = new PrintWriter(file);			
+			
+			double[][] map = square.getMap();
+			
+			
+			for(int y = 0; y < map[0].length; y++){
+				String s = "";
+				for(int x = 0; x < map.length; x++){
+					s += map[x][y] + " ";
+				}
+				out.println(s);
+			}		
+			
+			out.flush();
+			out.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 		
 		
+		System.out.println("Done");
 		
-		
-		System.out.println(square.toString());
+		//System.out.println(square.toString());
 		
 		for(int i = 0; i < 10; i++){
 			//System.out.println("I: " + square.seedRandom());
 		}
 		
 		
-		new IsoFrame(1500, 600, square);
+		//new IsoFrame(1920, 1080, square);
 		
 		
 	}
 	
-	private int[][] map;
+	private double[][] map;
 	private int width;
 	private int height;
 	private Random rand;
 	private int mapSeed;
+	
+	private double max = Integer.MAX_VALUE;
+	private double min = Integer.MIN_VALUE;
 	
 	public DiamondSquare(int size, int seed){
 		this.width = (int) Math.pow(2, size) + 1;
 		this.height = (int) Math.pow(2, size) + 1;
 		rand = new Random();
 		rand.setSeed(seed);
-		map = new int[width][height];	
+		map = new double[width][height];	
 		
 		
-		mapSeed = (int) (rand.nextDouble()*255);
+		mapSeed = (int) (0.5 * rand.nextDouble()*50);
 		setNeg();
 		
-		map[0][0] = (int) (rand.nextDouble()*255);
-		map[0][height-1] = (int) (rand.nextDouble()*255);
-		map[width-1][0] = (int) (rand.nextDouble()*255);
-		map[width-1][height-1] = (int) (rand.nextDouble()*255);
+		map[0][0] =(rand.nextInt(20) + 5);
+		map[0][height-1] =  (rand.nextInt(20) + 5);
+		map[width-1][0] =  (rand.nextInt(20) + 5);
+		map[width-1][height-1] = (rand.nextInt(20) + 5);
 		
 	}
 	
-	public int[][] getMap(){
+	public double[][] getMap(){
 		return map;
 	}
 	
+	public int getHeight(){
+		return height;
+	}
+	
+	public int getWidth(){
+		return width;
+	}
+	
+
 	public double seedRandom(){
 		return rand.nextDouble();
 	}
@@ -133,10 +168,10 @@ public class DiamondSquare {
 		//}		
 	}
 	
-	double h = 75;
-	public int rand(int avg){
+	double h = 150; // 75   35
+	public double rand(double avg){
 		//return avg;
-		return (int) (avg + ((2.0 *this.seedRandom()*h) - h));
+		return (avg + ((2.0 * this.seedRandom()*h) - h));
 		//return avg;	
 
 	}
@@ -178,10 +213,13 @@ public class DiamondSquare {
 				Location mid = new Location(p1.getX() + p2.getX() + p3.getX() + p4.getX(), p1.getY() + p2.getY() + p3.getY() + p4.getY());
 				mid = mid.multiply(0.25);				
 				
-				int avg = map[(int) p1.getX()][(int) p1.getY()] + map[(int) p2.getX()][(int) p2.getY()] + map[(int) p3.getX()][(int) p3.getY()] + map[(int) p4.getX()][(int) p4.getY()];
+				double avg = map[(int) p1.getX()][(int) p1.getY()] + map[(int) p2.getX()][(int) p2.getY()] + map[(int) p3.getX()][(int) p3.getY()] + map[(int) p4.getX()][(int) p4.getY()];
 				avg /= 4;
-				if(map[(int) mid.getX()][(int) mid.getY()] == -1)map[(int) mid.getX()][(int) mid.getY()] = rand(avg);					
-				//if(map[(int) mid.getX()][(int) mid.getY()] == -1)map[(int) mid.getX()][(int) mid.getY()] = 255;					
+				
+				map[(int) mid.getX()][(int) mid.getY()] = rand(avg);		
+				//if(map[(int) mid.getX()][(int) mid.getY()] == -1) map[(int) mid.getX()][(int) mid.getY()] = rand(avg);		
+
+				
 
 				p1 = new Location(mid.getX()-dist/2, mid.getY());
 				p2 = new Location(mid.getX()+dist/2, mid.getY());
@@ -190,15 +228,17 @@ public class DiamondSquare {
 				
 				//System.out.println("DIst: " + dist);
 				
-				if(map[(int) p1.getX()][(int) p1.getY()] == -1) map[(int) p1.getX()][(int) p1.getY()] = rand(getHeight(p1, 1.0 * dist/2));		
-				if(map[(int) p2.getX()][(int) p2.getY()] == -1) map[(int) p2.getX()][(int) p2.getY()] = rand(getHeight(p2, 1.0 * dist/2));			
-				if(map[(int) p3.getX()][(int) p3.getY()] == -1) map[(int) p3.getX()][(int) p3.getY()] = rand(getHeight(p3, 1.0 * dist/2));			
-				if(map[(int) p4.getX()][(int) p4.getY()] == -1) map[(int) p4.getX()][(int) p4.getY()] = rand(getHeight(p4, 1.0 * dist/2));	
+				//if(map[(int) p1.getX()][(int) p1.getY()] == -1) map[(int) p1.getX()][(int) p1.getY()] = rand(getHeight(p1, 1.0 * dist/2));		
+				//if(map[(int) p2.getX()][(int) p2.getY()] == -1) map[(int) p2.getX()][(int) p2.getY()] = rand(getHeight(p2, 1.0 * dist/2));			
+				//if(map[(int) p3.getX()][(int) p3.getY()] == -1) map[(int) p3.getX()][(int) p3.getY()] = rand(getHeight(p3, 1.0 * dist/2));			
+				//if(map[(int) p4.getX()][(int) p4.getY()] == -1) map[(int) p4.getX()][(int) p4.getY()] = rand(getHeight(p4, 1.0 * dist/2));	
+			
 				
-				//if(map[(int) p1.getX()][(int) p1.getY()] == -1) map[(int) p1.getX()][(int) p1.getY()] = 130;		
-				//if(map[(int) p2.getX()][(int) p2.getY()] == -1) map[(int) p2.getX()][(int) p2.getY()] = 130;			
-				//if(map[(int) p3.getX()][(int) p3.getY()] == -1) map[(int) p3.getX()][(int) p3.getY()] = 130;			
-				//if(map[(int) p4.getX()][(int) p4.getY()] == -1) map[(int) p4.getX()][(int) p4.getY()] = 130;	
+
+				map[(int) p1.getX()][(int) p1.getY()] = rand(getHeight(p1, 1.0 * dist/2));		
+				map[(int) p2.getX()][(int) p2.getY()] = rand(getHeight(p2, 1.0 * dist/2));			
+				map[(int) p3.getX()][(int) p3.getY()] = rand(getHeight(p3, 1.0 * dist/2));			
+				map[(int) p4.getX()][(int) p4.getY()] = rand(getHeight(p4, 1.0 * dist/2));	
 			}			
 		}	
 		
@@ -207,8 +247,8 @@ public class DiamondSquare {
 	}
 	
 	
-	public int getHeight(Location loc, double dist){
-		int totHeight = 0;
+	public double getHeight(Location loc, double dist){
+		double totHeight = 0;
 		int found = 0;
 		dist = Math.round(dist);
 		Location p1 = loc.add(dist, 0);
