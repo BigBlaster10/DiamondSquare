@@ -91,14 +91,14 @@ public class IsoPanel extends JPanel{
         	    
         	    if(screenY >= this.getWidth()) continue;
         	    
-        	    screenX += this.getWidth()/2;
-        	    screenY += this.getHeight()/2;
+        	    screenX += this.getWidth()/2 - square.getWidth()/2 - 30;
+        	    screenY += this.getWidth()/2 + square.getHeight()/2;
         	    
         	    
         		//40
         	    
                 //g2d.fillRect((int) (250 + screenX), (int) (500 + screenY/c * 20), tile_width, tile_height);
-                g2d.fillRect((int) (screenX), (int) (screenY/c * 5), tile_width, tile_height);
+                g2d.fillRect((int) (screenX), (int) (1.0 * screenY/c * 2), tile_width, tile_height);
 
                 //g2d.fillRect(800 + x*size, y*size, size, size);
                 
