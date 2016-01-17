@@ -1,5 +1,9 @@
 package org.trompgames.isometric;
 
+import java.awt.Color;
+import java.awt.GridLayout;
+
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 
 import org.trompgames.diamondsquare.DiamondSquare;
@@ -13,18 +17,26 @@ public class IsoFrame extends JFrame{
 
 	
 	private IsoPanel isoPanel;
+	private InputPanel inputPanel;
 	private DiamondSquare square;
 	
 	public IsoFrame(int width, int height, DiamondSquare square){
-		
-		this.isoPanel = new IsoPanel(square);
 		this.square = square;
+
+		this.isoPanel = new IsoPanel(square, this);
+		this.inputPanel = new InputPanel(this);
 		
 		this.setSize(width, height);
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setVisible(true);
-		this.add(isoPanel);		
 	
+		setLayout(new GridLayout(0,2));
+		
+		this.add(isoPanel);		
+		this.add(inputPanel);
+		
+		
+		this.setVisible(true);
+
 		(new Thread(new Update(this))).start();
 	}
 	

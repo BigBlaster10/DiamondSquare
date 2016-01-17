@@ -5,7 +5,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 
+import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 import org.trompgames.diamondsquare.DiamondSquare;
@@ -17,19 +19,22 @@ public class IsoPanel extends JPanel{
 	 */
 	private static final long serialVersionUID = -5506940375901345375L;
 
-	private boolean click = false;
+	private IsoFrame frame;
+	private boolean generate = false;
 	private DiamondSquare square;
-	public IsoPanel(DiamondSquare square){
+	public IsoPanel(DiamondSquare square, IsoFrame frame){
 		this.square = square;
-	
-		this.addMouseListener(new MouseAdapter() {
-		     @Override
-		     public void mousePressed(MouseEvent e) {
-		        click = true;
-		     }
-		  });
+		this.frame = frame;
+		
+		//this.setSize(100, 100);
+		this.setBorder(BorderFactory.createLineBorder(Color.black));
+		
+		
 	}
 	
+	public void generateNewMap(){
+		this.generate = true;
+	}
 	
 	int i = 15;
 	
@@ -38,11 +43,8 @@ public class IsoPanel extends JPanel{
     public void paintComponent(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         
-        if(click){
-    		//square = new DiamondSquare(4, (int) (Math.random() * 20000));
-    		//square.generate();
-    		//i = 0;
-        	square = new DiamondSquare(10, (int) (Math.random() * 20000));
+        if(generate){
+    		
     		square.generate();        	
     		
     		//double min = square.getMin();
@@ -55,7 +57,11 @@ public class IsoPanel extends JPanel{
     			}
     		}
     		
-        	click = false;
+    		File file = new File("test.txt");
+    		
+    	    square.writeToFile(file);
+    		
+    	    generate = false;
         }
         i++;
         
@@ -69,10 +75,13 @@ public class IsoPanel extends JPanel{
         	//for(int y = 0; y < map[0].length; y++){
         	for(int y = map[0].length - 1; y >= 0; y--){
 	
-        		double c = map[x][y];
+        		double c = map[x][y] * 5;
         		if(c > 255) c = 254;
         		if(c < 0) c = 0; 
         		g2d.setColor(new Color((int) c,(int) c, (int) 0));
+        		
+        		c = map[x][y];
+        		
         		int tile_width = 1;
 
         		int tile_height = 1;
@@ -82,8 +91,14 @@ public class IsoPanel extends JPanel{
         	    
         	    if(screenY >= this.getWidth()) continue;
         	    
+        	    screenX += this.getWidth()/2;
+        	    screenY += this.getHeight()/2;
+        	    
+        	    
         		//40
-                g2d.fillRect((int) (250 + screenX), (int) (500 + screenY/c * 40), tile_width, tile_height);
+        	    
+                //g2d.fillRect((int) (250 + screenX), (int) (500 + screenY/c * 20), tile_width, tile_height);
+                g2d.fillRect((int) (screenX), (int) (screenY/c * 5), tile_width, tile_height);
 
                 //g2d.fillRect(800 + x*size, y*size, size, size);
                 
