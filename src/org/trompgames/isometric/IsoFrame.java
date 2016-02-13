@@ -39,6 +39,7 @@ public class IsoFrame extends JFrame{
 
 		(new Thread(new Update(this))).start();
 		this.pack();
+		this.setSize(this.getWidth() + 200, this.getHeight() + 250);
 	}
 	
 	public DiamondSquare getDiamondSquare(){

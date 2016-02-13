@@ -3,7 +3,9 @@ package org.trompgames.diamondsquare;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.util.PrimitiveIterator.OfDouble;
 import java.util.Random;
+import java.util.stream.DoubleStream;
 
 import org.trompgames.isometric.IsoFrame;
 
@@ -19,7 +21,7 @@ public class DiamondSquare {
 		
 		Location lerped = Location.lerp(loc1, loc2, 0.5);
 		//System.out.println("Lerp: " + lerped);
-		DiamondSquare square = new DiamondSquare(9);
+		DiamondSquare square = new DiamondSquare(8);
 		
 		System.out.println("Starting generation");
 		square.generate();
@@ -35,7 +37,7 @@ public class DiamondSquare {
 		long time = System.currentTimeMillis();
 		//System.out.println("Started Writing");
 		
-		File file = new File("test.txt");
+		//File file = new File("test.txt");
 		
 	    //square.writeToFile(file);
 		
@@ -60,15 +62,25 @@ public class DiamondSquare {
 	private Random rand;
 	private long mapSeed;
 	
-	private double smoothness = 2;
-	private double heightRand = 20;
+	private double smoothness = 1.75;
+	private double heightRand = 0.33;
 	
 	private double max = Integer.MAX_VALUE;
 	private double min = Integer.MIN_VALUE;
 	
+	public DiamondSquare(int size, double smoothness, double heightRand){
+		this.width = (int) Math.pow(2, size) + 1;
+		this.height = (int) Math.pow(2, size) + 1;
+		this.smoothness = smoothness;
+		this.heightRand = heightRand;
+		rand = new Random();
+		map = new double[width][height];
+	}
+	
 	public DiamondSquare(int size){
 		this.width = (int) Math.pow(2, size) + 1;
 		this.height = (int) Math.pow(2, size) + 1;
+
 		rand = new Random();
 		map = new double[width][height];
 	}
@@ -86,23 +98,47 @@ public class DiamondSquare {
 	
 
 	
+	OfDouble streamDouble;
 	public void generate(){	
+		randCalls = 0;
 		this.setNeg();
 		this.h = heightRand;
 		
-		mapSeed = (long) (rand.nextDouble()*5000);
+		mapSeed = (long) (Math.random()*5000);
 		setNeg();
 		
 		rand.setSeed(mapSeed);
 		
-		map[0][0] = (rand.nextInt(20) + 5);
-		map[0][height-1] =  (rand.nextInt(20) + 5);
-		map[width-1][0] =  (rand.nextInt(20) + 5);
-		map[width-1][height-1] = (rand.nextInt(20) + 5);
+		DoubleStream stream = rand.doubles(width * height * 2);
+		streamDouble = stream.parallel().iterator();
+		
+		map[0][0] = (seedRandom());
+		map[0][height-1] =  (seedRandom());
+		map[width-1][0] =  (seedRandom());
+		map[width-1][height-1] = (seedRandom());
+		
 		
 		for (int sideLength = width - 1; sideLength >= 2; sideLength /= 2){
 			step(sideLength);			
 		}
+		
+		clampTo01();
+		
+		
+		double max = 0;
+		double min = 1;
+		
+		for(int y = 0; y < map[0].length; y++){
+			for(int x = 0; x < map.length; x++){
+				if(map[x][y] < min) min = map[x][y];
+				if(map[x][y] > max) max = map[x][y];
+			}
+		}
+		
+		//System.out.println("Max: " + max);
+		//System.out.println("Min: " + min);	
+		System.out.println("RandCalls: " + randCalls);
+		System.out.println("Width: " + width);
 	}
 	
 	public void generate(long seed){	
@@ -110,18 +146,41 @@ public class DiamondSquare {
 		this.h = heightRand;
 		
 		mapSeed = seed;
+
 		rand.setSeed(mapSeed);
 
-		setNeg();
+		DoubleStream stream = rand.doubles(width * height * 2);
+		streamDouble = stream.parallel().iterator();
 		
-		map[0][0] = (rand.nextInt(20) + 5);
-		map[0][height-1] = (rand.nextInt(20) + 5);
-		map[width-1][0] =  (rand.nextInt(20) + 5);
-		map[width-1][height-1] = (rand.nextInt(20) + 5);
+		setNeg();
+		map[0][0] = (seedRandom());
+		map[0][height-1] = (seedRandom());
+		map[width-1][0] =  (seedRandom());
+		map[width-1][height-1] = (seedRandom());
+		
 		
 		for (int sideLength = width - 1; sideLength >= 2; sideLength /= 2){
 			step(sideLength);			
 		}
+		clampTo01();
+	}
+	
+	public void clampTo01(){
+		double max = 0;               
+		double min = 1;
+		
+		for(int y = 0; y < map[0].length; y++){
+			for(int x = 0; x < map.length; x++){
+				if(map[x][y] < min) min = map[x][y];
+				if(map[x][y] > max) max = map[x][y];
+			}
+		}
+		for(int y = 0; y < map[0].length; y++){
+			for(int x = 0; x < map.length; x++){
+				map[x][y] = (map[x][y] - min)/(max-min);
+			}
+		}
+		
 	}
 	
 	public long getSeed(){
@@ -141,17 +200,17 @@ public class DiamondSquare {
 		this.smoothness = smoothness;
 	}
 	
-	private void step(int dist){	
-
-		Location p1;
-		Location p2;
-		Location p3;
-		Location p4;
-		
-		
+	private void step(int dist){		
+		(new Thread(new TestRun(dist, this))).start();
+			
 		for(int x = 0; x < width; x += dist){
 			for(int y = 0; y < height; y += dist){
 				//System.out.println("I: " + i);
+				
+				Location p1;
+				Location p2;
+				Location p3;
+				Location p4;
 				
 				p1 = new Location(x, y);
 				p2 = new Location(x, y+dist);
@@ -184,11 +243,41 @@ public class DiamondSquare {
 				map[(int) p3.getX()][(int) p3.getY()] = rand(getHeight(p3, 1.0 * dist/2));			
 				map[(int) p4.getX()][(int) p4.getY()] = rand(getHeight(p4, 1.0 * dist/2));	
 			}			
-		}	
+		}
+		
 		
 		h /= smoothness;
-
 	}
+	
+	
+	public static class TestRun implements Runnable{
+
+		private int dist;
+		private DiamondSquare square;
+		
+		public TestRun(int dist, DiamondSquare square){
+			this.dist = dist;
+			this.square = square;
+		}
+		
+			
+		
+		@Override
+		public void run() {
+			
+			
+			int width = square.getWidth();
+			int height = square.getHeight();
+			double[][] map = square.getMap();
+			
+			
+			
+		}
+		
+		
+		
+	}
+	
 	
 	
 	public double getHeight(Location loc, double dist){
@@ -264,8 +353,11 @@ public class DiamondSquare {
 		return heightRand;
 	}
 
+	int randCalls = 0;
 	public double seedRandom(){
-		return rand.nextDouble();
+		randCalls++;
+		//return rand.nextDouble();
+		return streamDouble.nextDouble();
 	}
 	
 	public String exelTest(){
@@ -299,12 +391,6 @@ public class DiamondSquare {
 	
 	//int h = 2;
 	
-	public double randHeight(double h){	
-		//return (float) (h + (int) ((this.seedRandom() * 2 * this.h) - this.h));
-		
-		
-		return (h + this.seedRandom());
-	}
 	
 	
 	public boolean isInMap(Location loc){

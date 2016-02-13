@@ -44,7 +44,7 @@ public class InputPanel extends JPanel{
 		
 		DiamondSquare square = frame.getDiamondSquare();
 		
-		JLabel smoothnessLabel = new JLabel("" + (int) square.getSmoothness()*10);
+		JLabel smoothnessLabel = new JLabel("" + (square.getSmoothness()));
 		JLabel heightRandLabel = new JLabel("" + square.getHeightRand());
 		
 		JButton save = new JButton("Save to file");
@@ -79,14 +79,14 @@ public class InputPanel extends JPanel{
 		});
 		
 		JSlider smoothness = new JSlider(JSlider.HORIZONTAL,
-                1, 200, (int) square.getSmoothness()*10);
-		
+                1, 500, (int) (square.getSmoothness() * 100));
+		//200
 		smoothness.addChangeListener(new ChangeListener(){
 			@Override
 			public void stateChanged(ChangeEvent event) {				
-				square.setSmoothness(1.0 * smoothness.getValue()/10);
+				square.setSmoothness(1.0 * smoothness.getValue()/100);
 				square.generate(square.getSeed());
-				smoothnessLabel.setText("" + smoothness.getValue()/10);
+				smoothnessLabel.setText("" + 1.0 * smoothness.getValue()/100);
 			}			
 		});
 		
@@ -96,15 +96,15 @@ public class InputPanel extends JPanel{
 		//smoothness.setPaintLabels(true);
 		
 		JSlider heightRand = new JSlider(JSlider.HORIZONTAL,
-                1, 200, (int) frame.getDiamondSquare().getHeightRand());
-
+                1, 500, (int) (frame.getDiamondSquare().getHeightRand() * 100));
+		//100
 		
 		heightRand.addChangeListener(new ChangeListener(){
 			@Override
 			public void stateChanged(ChangeEvent event) {				
-				square.setHeightRand(heightRand.getValue());
+				square.setHeightRand(1.0 * heightRand.getValue()/100);
 				square.generate(square.getSeed());
-				heightRandLabel.setText("" + heightRand.getValue());
+				heightRandLabel.setText("" + 1.0 * heightRand.getValue()/100);
 			}			
 		});
 		
